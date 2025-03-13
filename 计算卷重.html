@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动计算工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #result {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* 新增样式，用于包裹宽度单选框 */
+        .width-radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 300px;
+        }
+
+        .width-radio-group label {
+            display: inline-flex;
+            align-items: center;
+            margin: 5px;
+        }
+
+        .width-radio-group input[type="radio"] {
+            margin-right: 5px;
+            margin-left: 0;
+        }
+
+        /* 复制按钮样式 */
+        #copyButton {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #copyButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="input-container">
+        <label for="b">钢卷内直径:</label>
+        <input type="number" id="b" oninput="calculate()">
+        <br>
+        <input type="radio" id="option1" name="innerDiameterOption" value="508" onclick="fillInnerDiameter(this.value)">
+        <label for="option1">508</label>
+        <input type="radio" id="option2" name="innerDiameterOption" value="610" onclick="fillInnerDiameter(this.value)">
+        <label for="option2">610</label>
+        <input type="radio" id="option3" name="innerDiameterOption" value="760" onclick="fillInnerDiameter(this.value)">
+        <label for="option3">760</label>
+    </div>
+    <div class="input-container">
+        <label for="c">钢卷宽度:</label>
+        <input type="number" id="c" oninput="calculate()">
+        <br>
+        <div class="width-radio-group">
+            <input type="radio" id="widthOption1" name="widthOption" value="762" onclick="fillWidth(this.value)">
+            <label for="widthOption1">762</label>
+            <input type="radio" id="widthOption2" name="widthOption" value="800" onclick="fillWidth(this.value)">
+            <label for="widthOption2">800</label>
+            <input type="radio" id="widthOption3" name="widthOption" value="900" onclick="fillWidth(this.value)">
+            <label for="widthOption3">900</label>
+            <input type="radio" id="widthOption4" name="widthOption" value="1000" onclick="fillWidth(this.value)">
+            <label for="widthOption4">1000</label>
+            <input type="radio" id="widthOption5" name="widthOption" value="1200" onclick="fillWidth(this.value)">
+            <label for="widthOption5">1200</label>
+            <input type="radio" id="widthOption6" name="widthOption" value="1220" onclick="fillWidth(this.value)">
+            <label for="widthOption6">1220</label>
+            <input type="radio" id="widthOption7" name="widthOption" value="1250" onclick="fillWidth(this.value)">
+            <label for="widthOption7">1250</label>
+            <input type="radio" id="widthOption8" name="widthOption" value="1500" onclick="fillWidth(this.value)">
+            <label for="widthOption8">1500</label>
+        </div>
+    </div>
+    <div class="input-container">
+        <label for="a">钢卷外直径:</label>
+        <input type="number" id="a" oninput="calculate()">
+    </div>
+    <div id="result">结果将显示在这里</div>
+    <div class="input-container">
+        <label for="actualWeight">实际重量:</label>
+        <input type="number" id="actualWeight" oninput="calculate()">
+    </div>
+    <div id="comparisonResult"></div>
+    <!-- 复制按钮 -->
+    <button id="copyButton" onclick="copyResults()">复制显示结果</button>
+
+    <script>
+        function calculate() {
+            // 获取输入框中的值
+            const outerDiameter = parseFloat(document.getElementById('a').value);
+            const innerDiameter = parseFloat(document.getElementById('b').value);
+            const width = parseFloat(document.getElementById('c').value);
+            const actualWeight = parseFloat(document.getElementById('actualWeight').value);
+
+            // 检查输入是否为有效的数字
+            if (!isNaN(outerDiameter) && !isNaN(innerDiameter) && !isNaN(width)) {
+                // 按照公式进行计算
+                const result = (outerDiameter * outerDiameter - innerDiameter * innerDiameter) / 4 * 3.14 * 7.85 * width / 1000000;
+                const calculatedWeight = Math.round(result); // 保留整数
+                const resultText = `计算结果: ${calculatedWeight} kg`;
+                document.getElementById('result').textContent = resultText;
+
+                let comparisonText = '';
+                if (!isNaN(actualWeight)) {
+                    const difference = actualWeight - calculatedWeight;
+                    const ratio = (difference / actualWeight) * 1000;
+                    comparisonText = `${resultText}<br>实际重量: ${actualWeight} kg<br>实际比理算重量重 ${difference.toFixed(2)} kg<br>实际磅为 ${ratio.toFixed(2)} ‰`;
+                }
+                document.getElementById('comparisonResult').innerHTML = comparisonText;
+            } else {
+                // 输入无效时显示提示
+                document.getElementById('result').textContent = '请输入有效的数字';
+                document.getElementById('comparisonResult').textContent = '';
+            }
+        }
+
+        function fillInnerDiameter(value) {
+            const innerDiameterInput = document.getElementById('b');
+            innerDiameterInput.value = value;
+            calculate(); // 填入值后重新计算结果
+        }
+
+        function fillWidth(value) {
+            const widthInput = document.getElementById('c');
+            widthInput.value = value;
+            calculate(); // 填入值后重新计算结果
+        }
+
+        function copyResults() {
+            const resultText = document.getElementById('result').textContent;
+            const comparisonText = document.getElementById('comparisonResult').innerHTML.replace(/<br>/g, '\n');
+            const textToCopy = resultText + '\n' + comparisonText;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('显示结果已复制到剪贴板');
+        }
+    </script>
+</body>
+
+</html>
